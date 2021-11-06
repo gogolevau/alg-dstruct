@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include "Skiplist.h"
+#include "SkipList.h"
 
-static void __SkiplistNodeFree(Node* node) {
+static void __SkipListNodeFree(SkipListNode* node) {
 	if (node != NULL) {
 		if (node->next != NULL)
 			free(node->next);
@@ -11,23 +11,23 @@ static void __SkiplistNodeFree(Node* node) {
 	}
 }
 
-Skiplist* SkiplistInit() {
-	Skiplist* list;
-	list = (Skiplist*)malloc(sizeof(Skiplist));
+SkipList* SkipListInit() {
+	SkipList* list;
+	list = (SkipList*) malloc(sizeof(SkipList));
 	if (list == NULL)
 		return NULL;
-
-	Node* header = (Node*)malloc(sizeof(Node));
-	if (header == NULL) {
+	
+	SkipListNode* header = (SkipListNode*) malloc(sizeof(SkipListNode));
+	if (header == NULL){
 		free(list);
 		return NULL;
 	}
-
+	
 	list->header = header;
 	header->key = INT_MAX;
-
-	header->next = (Node**)malloc(sizeof(Node*) * MAX_LEVEL);
-	if (header->next == NULL) {
+	
+	header->next = (SkipListNode**) malloc(sizeof(SkipListNode*) * MAX_LEVEL);
+	if (header->next == NULL){
 		free(header);
 		free(list);
 		return NULL;
@@ -41,11 +41,11 @@ Skiplist* SkiplistInit() {
 	return list;
 }
 
-Node* SkiplistSearch(Skiplist* list, int key) {
+SkipListNode* SkipListSearch(SkipList* list, int key) {
 	if (list == NULL)
 		return NULL;
-
-	Node* element = list->header;
+	
+	SkipListNode* element = list->header;
 
 	for (int i = list->level; i >= 1; i--) {
 		while (element->next[i] && element->next[i]->key < key) {
@@ -59,10 +59,10 @@ Node* SkiplistSearch(Skiplist* list, int key) {
 		return NULL;
 }
 
-int SkiplistDelete(Skiplist* list, int key) {
+int SkipListDelete(SkipList* list, int key) {
 	int i;
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
 
 	for (i = list->level; i >= 1; i--) {
 		while (element->next[i]->key < key)
@@ -81,20 +81,20 @@ int SkiplistDelete(Skiplist* list, int key) {
 			update[i]->next[i] = element->next[i];
 		}
 
-		__SkiplistNodeFree(element);
+		__SkipListNodeFree(element);
 
-		while (list->level > 1 && list->header->next[list->level] == list->header)
+		while (list->level > 1 && list->header->next[list->level] == list->header) 
 			list->level--;
-
+		
 		return 0;
 	}
-
+	
 	return 1;
 }
 
-int SkiplistInsert(Skiplist* list, int key, int value) {
-	Node* update[MAX_LEVEL + 1];
-	Node* element = list->header;
+int SkipListInsert(SkipList* list, int key, int value) {
+	SkipListNode* update[MAX_LEVEL + 1];
+	SkipListNode* element = list->header;
 	int i, level;
 
 	for (i = list->level; i >= 1; i--) {
@@ -118,10 +118,10 @@ int SkiplistInsert(Skiplist* list, int key, int value) {
 			list->level = level;
 		}
 
-		element = (Node*)malloc(sizeof(Node));
+		element = (SkipListNode*)malloc(sizeof(SkipListNode));
 		element->key = key;
 		element->value = value;
-		element->next = (Node**)malloc(sizeof(Node*) * (level + 1));
+		element->next = (SkipListNode**)malloc(sizeof(SkipListNode*)*(level + 1));
 
 		for (i = 1; i <= level; i++) {
 			element->next[i] = update[i]->next[i];
@@ -129,18 +129,18 @@ int SkiplistInsert(Skiplist* list, int key, int value) {
 		}
 	}
 
-	return 0;
+	return 1;
 }
 
 
-void SkiplistFree(Skiplist* list) {
+void SkipListFree(SkipList* list) {
 	if (list == NULL)
 		return;
-
-	Node* current = list->header->next[1];
+	
+	SkipListNode* current = list->header->next[1];
 
 	while (current != list->header) {
-		Node* forward = current->next[1];
+		SkipListNode* forward = current->next[1];
 		free(current->next);
 		free(current);
 		current = forward;
@@ -152,13 +152,13 @@ void SkiplistFree(Skiplist* list) {
 }
 
 
-void SkiplistPrint(Skiplist* list) {
-	if (list == NULL) {
+void SkipListPrint(SkipList* list) {
+	if (list == NULL){
 		printf("NULL\n");
 		return;
 	}
 
-	Node* node = list->header;
+	SkipListNode* node = list->header;
 
 	while (node && node->next[1] != list->header) {
 		printf("%d[%d]->", node->next[1]->key, node->next[1]->value);
