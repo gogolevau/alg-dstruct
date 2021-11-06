@@ -2,18 +2,19 @@
 
 extern "C" {
 #include <stdlib.h>
-#include "Skiplist.h"
+#include "SkipList.h"
+#include "LinkedList.h"
 }
 
 
-Skiplist* test_skip_list_creation() {
-	Skiplist* list;
-	list = (Skiplist*)malloc(sizeof(Skiplist));
-	Node* header = (Node*)malloc(sizeof(Node));
+SkipList* test_skip_list_creation(){
+	SkipList* list;
+	list = (SkipList*) malloc(sizeof(SkipList));
+	SkipListNode* header = (SkipListNode*) malloc(sizeof(SkipListNode));
 	list->header = header;
 	header->key = INT_MAX;
 	header->value = INT_MAX;
-	header->next = (Node**)malloc(sizeof(Node*) * MAX_LEVEL);
+	header->next = (SkipListNode**) malloc(sizeof(SkipListNode*) * MAX_LEVEL);
 
 	for (int i = 0; i < MAX_LEVEL; i++)
 		header->next[i] = header;
@@ -23,16 +24,8 @@ Skiplist* test_skip_list_creation() {
 }
 
 
-
-TEST(TestCaseName, TestName) {
-	EXPECT_EQ(1, 1);
-	EXPECT_TRUE(true);
-}
-
-
-
-TEST(InitCase, SkiplistInitialisation) {
-	Skiplist* list = SkiplistInit();
+TEST(InitSkipListCase, Initialisation) {
+	SkipList* list = SkipListInit();
 	ASSERT_TRUE(list != nullptr);
 	ASSERT_TRUE(list->header != nullptr);
 	ASSERT_TRUE(list->header->next != nullptr);
@@ -43,14 +36,14 @@ TEST(InitCase, SkiplistInitialisation) {
 
 
 
-TEST(SearchCase, SkiplistSearchInEmptyList) {
-	Skiplist* list;
-	list = (Skiplist*)malloc(sizeof(Skiplist));
-	Node* header = (Node*)malloc(sizeof(Node));
+TEST(SkipListSearchCase, SearchInEmptyList) {
+	SkipList* list;
+	list = (SkipList*) malloc(sizeof(SkipList));
+	SkipListNode* header = (SkipListNode*) malloc(sizeof(SkipListNode));
 	list->header = header;
 	header->key = INT_MAX;
 	header->value = INT_MAX;
-	header->next = (Node**)malloc(sizeof(Node*) * MAX_LEVEL);
+	header->next = (SkipListNode**) malloc(sizeof(SkipListNode*) * MAX_LEVEL);
 
 	for (int i = 0; i < MAX_LEVEL; i++) {
 		header->next[i] = NULL;
@@ -58,179 +51,300 @@ TEST(SearchCase, SkiplistSearchInEmptyList) {
 
 	list->level = 1;
 
-	Node* search_result = SkiplistSearch(list, 1);
+	SkipListNode* search_result = SkipListSearch(list, 1);
 	EXPECT_TRUE(search_result == nullptr);
 }
 
 
 
-TEST(SearchCase, SkiplistSearchInListWithOneElementInIt) {
-	Skiplist* list = test_skip_list_creation();
-
+TEST(SkipListSearchCase, SearchInListWithOneElementInIt){
+	SkipList* list = test_skip_list_creation();
+	
 	int key = 1;
 	int value = 1;
-
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
-
+	
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
+	
 	update[1] = element;
 	element = element->next[1];
-
+	
 	update[2] = list->header;
 	list->level = 2;
-
-	element = (Node*)malloc(sizeof(Node));
+	
+	element = (SkipListNode*)malloc(sizeof(SkipListNode));
 	element->key = key;
 	element->value = value;
-	element->next = (Node**)malloc(sizeof(Node*) * 3);
-
+	element->next = (SkipListNode**)malloc(sizeof(SkipListNode*) * 3);
+	
 	element->next[1] = update[1]->next[1];
 	update[1]->next[1] = element;
-
+	
 	element->next[2] = update[2]->next[2];
 	update[2]->next[2] = element;
-
-	Node* search_result = SkiplistSearch(list, 1);
+	
+	SkipListNode* search_result = SkipListSearch(list, 1);
 	ASSERT_TRUE(search_result != nullptr);
 	EXPECT_TRUE(search_result->value == 1);
 }
 
 
 
-TEST(SearchCase, SkiplistSearchInListWithOneElementWithoutNeedValue) {
-	Skiplist* list = test_skip_list_creation();
-
+TEST(SkipListSearchCase, SearchInListWithOneElementWithoutNeedKey){
+	SkipList* list = test_skip_list_creation();
+	
 	int key = 1;
 	int value = 1;
 
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
 
 	update[1] = element;
 	element = element->next[1];
-
+	
 	update[2] = list->header;
 	list->level = 2;
-
-	element = (Node*)malloc(sizeof(Node));
+	
+	element = (SkipListNode*)malloc(sizeof(SkipListNode));
 	element->key = key;
 	element->value = value;
-	element->next = (Node**)malloc(sizeof(Node*) * 3);
-
+	element->next = (SkipListNode**)malloc(sizeof(SkipListNode*) * 3);
+	
 	element->next[1] = update[1]->next[1];
 	update[1]->next[1] = element;
-
+	
 	element->next[2] = update[2]->next[2];
 	update[2]->next[2] = element;
-
-	Node* search_result = SkiplistSearch(list, 2);
+	
+	SkipListNode* search_result = SkipListSearch(list, 2);
 	ASSERT_TRUE(search_result == nullptr);
 }
 
-TEST(DeleteCase, SkiplistDeleteElementFromEmptyList) {
-	Skiplist* list = test_skip_list_creation();
-	int res = SkiplistDelete(list, 1);
+TEST(SkipListDeleteCase, DeleteElementFromEmptyList){
+	SkipList* list = test_skip_list_creation();
+	int res = SkipListDelete(list, 1);
 	ASSERT_TRUE(res == 1);
 }
 
 
 
-TEST(DeleteKeyCase, SkiplistDeleteElementFromNotEmptyListWithNeedValue) {
-	Skiplist* list = test_skip_list_creation();
-
+TEST(SkipListDeleteKeyCase, DeleteElementFromNotEmptyListWithNeedKey){
+	SkipList* list = test_skip_list_creation();
+	
 	int key = 1;
 	int value = 1;
-
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
-
+	
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
+	
 	update[1] = element;
 	element = element->next[1];
-
+	
 	update[2] = list->header;
 	list->level = 2;
-
-	element = (Node*)malloc(sizeof(Node));
+	
+	element = (SkipListNode*)malloc(sizeof(SkipListNode));
 	element->key = key;
 	element->value = value;
-	element->next = (Node**)malloc(sizeof(Node*) * 3);
-
+	element->next = (SkipListNode**)malloc(sizeof(SkipListNode*) * 3);
+	
 	element->next[1] = update[1]->next[1];
 	update[1]->next[1] = element;
-
+	
 	element->next[2] = update[2]->next[2];
 	update[2]->next[2] = element;
-
-	int res = SkiplistDelete(list, 1);
+	
+	int res = SkipListDelete(list, 1);
 	ASSERT_TRUE(res == 0);
 }
 
 
 
-TEST(DeleteKeyCase, SkiplistDeleteElementFromNotEmptyWithNotNeedValue) {
-	Skiplist* list = test_skip_list_creation();
-
+TEST(SkipListDeleteKeyCase, DeleteElementFromNotEmptyWithNotNeedKey){
+	SkipList* list = test_skip_list_creation();
+	
 	int key = 1;
 	int value = 1;
-
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
-
+	
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
+	
 	update[1] = element;
 	element = element->next[1];
-
+	
 	update[2] = list->header;
 	list->level = 2;
-
-	element = (Node*)malloc(sizeof(Node));
+	
+	element = (SkipListNode*)malloc(sizeof(SkipListNode));
 	element->key = key;
 	element->value = value;
-	element->next = (Node**)malloc(sizeof(Node*) * 3);
-
+	element->next = (SkipListNode**)malloc(sizeof(SkipListNode*) * 3);
+	
 	element->next[1] = update[1]->next[1];
 	update[1]->next[1] = element;
-
+	
 	element->next[2] = update[2]->next[2];
 	update[2]->next[2] = element;
-
-	int res = SkiplistDelete(list, 2);
+	
+	int res = SkipListDelete(list, 2);
 	ASSERT_TRUE(res == 1);
 }
 
-TEST(DeleteListCase, DeleteNULLSkipList) {
-	ASSERT_NO_FATAL_FAILURE(SkiplistFree(NULL));
+TEST(SkipListDeleteListCase, DeleteNULLSkipList){
+	ASSERT_NO_FATAL_FAILURE(SkipListFree(NULL));
 }
 
-TEST(DeleteListCase, DeleteEmptySkipList) {
-	Skiplist* list = test_skip_list_creation();
-	ASSERT_NO_FATAL_FAILURE(SkiplistFree(list));
+TEST(SkipListDeleteListCase, DeleteEmptySkipList){
+	SkipList* list = test_skip_list_creation();
+	ASSERT_NO_FATAL_FAILURE(SkipListFree(list));
 }
 
-TEST(DeleteListCase, DeleteNotEmptySkipList) {
-	Skiplist* list = test_skip_list_creation();
+TEST(SkipListDeleteListCase, DeleteNotEmptySkipList){
+	SkipList* list = test_skip_list_creation();
 
 	int key = 1;
 	int value = 1;
-
-	Node* update[MAX_LEVEL];
-	Node* element = list->header;
-
+	
+	SkipListNode* update[MAX_LEVEL];
+	SkipListNode* element = list->header;
+	
 	update[1] = element;
 	element = element->next[1];
-
+	
 	update[2] = list->header;
 	list->level = 2;
-
-	element = (Node*)malloc(sizeof(Node));
+	
+	element = (SkipListNode*)malloc(sizeof(SkipListNode));
 	element->key = key;
 	element->value = value;
-	element->next = (Node**)malloc(sizeof(Node*) * 3);
-
+	element->next = (SkipListNode**)malloc(sizeof(SkipListNode*) * 3);
+	
 	element->next[1] = update[1]->next[1];
 	update[1]->next[1] = element;
-
+	
 	element->next[2] = update[2]->next[2];
 	update[2]->next[2] = element;
+	
+	ASSERT_NO_FATAL_FAILURE(SkipListFree(list));
+}
 
-	ASSERT_NO_FATAL_FAILURE(SkiplistFree(list));
+
+
+TEST(InitLinkedListCase, SkipListInitialisation) {
+	LinkedList* list = LinkedListInit();
+	ASSERT_TRUE(list != nullptr);
+	ASSERT_TRUE(list->next == nullptr);
+	EXPECT_TRUE(list->value == INT_MAX);
+	EXPECT_TRUE(list->key == INT_MAX);
+}
+
+TEST(LinkedListSearchCase, SearchInEmptyList) {
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+
+	LinkedListNode* search_result = LinkedListSearch(list, 1);
+	EXPECT_TRUE(search_result == nullptr);
+}
+
+
+
+TEST(LinkedListSearchCase, SearchInListWithOneElementInIt){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	list->next = (LinkedListNode*)malloc(sizeof(LinkedListNode));
+	list->next->key = 1;
+	list->next->value = 2;
+
+	LinkedListNode* search_result = LinkedListSearch(list, 1);
+	ASSERT_TRUE(search_result != nullptr);
+	EXPECT_TRUE(search_result->value == 2);
+}
+
+
+
+TEST(LinkedListSearchCase, SearchInListWithOneElementWithoutNeedKey){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	list->next = (LinkedListNode*)malloc(sizeof(LinkedListNode));
+	list->next->key = 1;
+	list->next->value = 2;
+
+	LinkedListNode* search_result = LinkedListSearch(list, 2);
+	ASSERT_TRUE(search_result == nullptr);
+}
+
+TEST(LinkedListDeleteKeyCase, DeleteElementFromEmptyList){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	int res = LinkedListDelete(list, 1);
+	ASSERT_TRUE(res == 1);
+}
+
+
+
+TEST(LinkedListDeleteKeyCase, DeleteElementFromNotEmptyListWithNeedKey){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	list->next = (LinkedListNode*)malloc(sizeof(LinkedListNode));
+	list->next->key = 1;
+	list->next->value = 2;
+	
+	int res = LinkedListDelete(list, 1);
+	ASSERT_TRUE(res == 0);
+}
+
+
+
+TEST(LinkedListDeleteKeyCase, DeleteElementFromNotEmptyWithNotNeedKey){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	list->next = (LinkedListNode*)malloc(sizeof(LinkedListNode));
+	list->next->key = 2;
+	list->next->value = 2;
+	
+	int res = LinkedListDelete(list, 1);
+	ASSERT_TRUE(res == 1);
+}
+
+TEST(LinkedListDeleteListCase, DeleteNULLList){
+	ASSERT_NO_FATAL_FAILURE(LinkedListFree(NULL));
+}
+
+TEST(LinkedListDeleteListCase, DeleteEmptyList){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	ASSERT_NO_FATAL_FAILURE(LinkedListFree(list));
+}
+
+TEST(LinkedListDeleteListCase, DeleteNotEmptyList){
+	LinkedList* list = (LinkedList*)malloc(sizeof(LinkedListNode));
+	list->next = NULL;
+	list->key = INT_MAX;
+	list->value = INT_MAX;
+	
+	list->next = (LinkedListNode*)malloc(sizeof(LinkedListNode));
+	list->next->key = 2;
+	list->next->value = 2;
+	
+	
+	ASSERT_NO_FATAL_FAILURE(LinkedListFree(list));
 }

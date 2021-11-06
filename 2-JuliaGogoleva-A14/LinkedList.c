@@ -32,7 +32,7 @@ int LinkedListDelete(LinkedList* list, int key){
 	LinkedListNode* node;
 	for (node = list; node->next != NULL && node->next->key != key; node = node->next);
 	
-	if (node->next->key == key){
+	if (node->next && node->next->key == key){
 		LinkedListNode* del_node = node->next;
 		node->next = node->next->next;
 		free(del_node);
@@ -71,6 +71,9 @@ int LinkedListInsert(LinkedList* list, int key, int value){
 }
 
 void LinkedListFree(LinkedList* list){
+	if (list == NULL)
+		return;
+	
 	LinkedListNode* prev_node = list;
 	LinkedListNode* node = list->next;
 	
