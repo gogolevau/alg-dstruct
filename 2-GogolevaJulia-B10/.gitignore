@@ -1,0 +1,8 @@
+Debug/
+.vs/
+packages/
+*.sln
+*.vcxproj*
+pch.*
+*.config
+*.csv
