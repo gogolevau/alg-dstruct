@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
+#include <windows.h>
 
 int ParseGraph(FILE* stream, int***graph_p, int* graph_size){
 	int val;
@@ -82,14 +84,46 @@ void BFS(int** graph, int size){
 		printf("%d ", *vector_cursor);
 		vector_cursor++;
 	}
+}
+
+void TestGen(const char* filename){
+	// increasing stack size
+	srand(time(NULL));
+
+	int links_amount = 1000;
+	int nodes_amount = 10000;
+	int links_in_one_node = links_amount / nodes_amount;
 	
+	FILE* input = fopen(filename, "w");
+	fprintf(input, "%u\n", nodes_amount);
+	
+	for (int node_number = 0; node_number < nodes_amount; node_number++){
+		fprintf(input, "%d", node_number);
+		for (int links_amount = 0; links_amount <= links_in_one_node; links_amount++)
+			fprintf(input, " %d", rand()%nodes_amount);
+		fprintf(input, "\n");
+	}
+	fclose(input);
 }
 
 int main(){
 	int** graph, size;
-	if (ParseGraph(stdin, &graph, &size)){
-// 		PrintGraph(graph, size);
+	
+	LARGE_INTEGER start, end, freq;
+    QueryPerformanceFrequency(&freq);
+	
+	TestGen("Input.txt");
+	FILE* file = fopen("Input.txt", "r");
+	
+	QueryPerformanceCounter(&start);
+	if (ParseGraph(file, &graph, &size)){
 		BFS(graph, size);
 	}
+    QueryPerformanceCounter(&end);
+	
+    printf("Working time %f\n", (double)(end.QuadPart - start.QuadPart) / freq.QuadPart);
+	
+	fclose(file);
+	remove("Input.txt");
 	return 0;
 }
