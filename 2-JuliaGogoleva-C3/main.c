@@ -5,6 +5,8 @@
 #include <time.h>
 #include <windows.h>
 
+#define PARSE_LINE_LEN 250
+
 int ParseGraph(FILE* stream, int***graph_p, int* graph_size){
 	int val;
 	fscanf(stream, "%d\n", &val);
@@ -30,10 +32,10 @@ int ParseGraph(FILE* stream, int***graph_p, int* graph_size){
 	
 	while (1){
 		int parent_node_index, neighbour_node_index;
-		char line[250];
+		char line[PARSE_LINE_LEN];
 		char* line_p = line;
 		
-		if(fgets(line, 250, stream) == NULL)
+		if(fgets(line, PARSE_LINE_LEN, stream) == NULL)
 			break;
 		
 		if (sscanf(line, "%d", &parent_node_index) <= 0)
