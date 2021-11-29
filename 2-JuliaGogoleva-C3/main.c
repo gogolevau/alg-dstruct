@@ -106,6 +106,36 @@ void TestGen(const char* filename){
 	fclose(input);
 }
 
+/*
+Computer spec:
+
+CsManufacturer : HUAWEI
+CsModel : BOHK-WAX9X
+CsName : LAPTOP-T4FCKU10
+CsNetworkServerModeEnabled : True
+CsNumberOfLogicalProcessors : 8
+CsNumberOfProcessors : 1
+CsProcessors : {AMD Ryzen 7 3700U with Radeon Vega Mobile Gfx }
+CsPowerSupplyState : Safe
+
+CsSystemType : x64-based PC
+CsTotalPhysicalMemory : 7448702976
+CsPhyicallyInstalledMemory : 8388608
+
+OsVersion : 10.0.19042
+OsBuildNumber : 19042
+
+OsForegroundApplicationBoost : Maximum
+OsTotalVisibleMemorySize : 7274124
+OsFreePhysicalMemory : 2204788
+OsTotalVirtualMemorySize : 13041292
+OsFreeVirtualMemory : 6367164
+OsInUseVirtualMemory : 6674128
+
+OsNumberOfProcesses : 208
+OsArchitecture : 64-разрядная
+*/
+
 int main(){
 	int** graph, size;
 	
