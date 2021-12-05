@@ -13,9 +13,9 @@
 #define DIV 1048576
 #define WIDTH 7
 
-#define STRESS_TEST_LINKS_AMOUNT 100000
-#define STRESS_TEST_NODES_AMOUNT 10000
-#define STRESS_TEST_COLORS_AMOUNT 100
+#define STRESS_TEST_LINKS_AMOUNT 1500000
+#define STRESS_TEST_NODES_AMOUNT 17500
+#define STRESS_TEST_COLORS_AMOUNT 1000
 
 /*
 Stress test info:
@@ -43,7 +43,15 @@ OsNumberOfProcesses : 208
 OsArchitecture : 64-разрядная
 
 *Test information:
-
+Working time 36.584891 s
+There is       71 percent of memory in use.
+There are    6091 total Mbytes of physical memory.
+There are    1748 free Mbytes of physical memory.
+There are   15819 total Mbytes of paging file.
+There are    3470 free Mbytes of paging file.
+There are 134217727 total Mbytes of virtual memory.
+There are 134211736 free Mbytes of virtual memory.
+There are       0 free Mbytes of extended memory.
 */
 
 
