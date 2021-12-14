@@ -3,7 +3,8 @@
 #include <string.h>
 #include "BinTree.h"
 
-#define BUF_SIZE 20][255
+#define BUF_AREA_HEIGH 20
+#define BUF_AREA_WIDTH 255
 
 static void BinTreeInsertNode(BinTree* tree, BinTreeNode* new_node){
 	
@@ -130,7 +131,7 @@ static int max(int val1, int val2){
 	return val2;
 }
 
-static RecursionReturn _BinTreePrint(BinTreeNode* node, int is_left, int offset, int depth, int max_len_for_subtree_width, char buf[BUF_SIZE]) {
+static RecursionReturn _BinTreePrint(BinTreeNode* node, int is_left, int offset, int depth, int max_len_for_subtree_width, char buf[BUF_SIZE][BUF_AREA_WIDTH]) {
 	RecursionReturn ret;
 	ret.subtree_width = 0;
 	
@@ -201,7 +202,7 @@ static int MaxSubtreeWidth(BinTreeNode* node){
 }
 
 void BinTreePrint(BinTree tree){
-	char s[BUF_SIZE];
+	char s[BUF_AREA_HEIGH][BUF_AREA_WIDTH];
     for (int i = 0; i < 20; i++){
         sprintf(s[i], "%80s", " ");
 	}
