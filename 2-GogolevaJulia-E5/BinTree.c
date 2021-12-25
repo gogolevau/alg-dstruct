@@ -11,15 +11,15 @@ static void BinTreeInsertNode(BinTree* tree, BinTreeNode* new_node){
 	if (new_node == NULL)
 		return;
 	
-	if (tree == NULL || (*tree) == NULL){
-		*tree = new_node;
+	if (tree->head == NULL){
+		tree->head = new_node;
 		return;
 	}
 	
-	BinTreeNode* node = *tree;
-	
+	BinTreeNode* node = tree->head;
 	while(node != NULL){
-		if (new_node->value < node->value){
+		int compare = tree->fun(new_node->value, node->value);
+		if (compare < 0){
 			if (node->left == NULL){
 				node->left = new_node;
 				return;
@@ -28,7 +28,7 @@ static void BinTreeInsertNode(BinTree* tree, BinTreeNode* new_node){
 				node = node->left;
 			}
 		}
-		else if (new_node->value == node->value){
+		else if (compare == 0){
 			free(new_node);
 			return;
 		}
@@ -44,7 +44,7 @@ static void BinTreeInsertNode(BinTree* tree, BinTreeNode* new_node){
 	}
 }
 
-void BinTreeInsert(BinTree* tree, int val )
+void BinTreeInsert(BinTree* tree, void* val)
 {
 	
 	BinTreeNode* new_node = (BinTreeNode*)malloc(sizeof(BinTreeNode));
@@ -60,14 +60,15 @@ void BinTreeInsert(BinTree* tree, int val )
 }
 
 
-int BinTreeSearch(BinTree tree, int val){
-	BinTreeNode* node = tree;
+int BinTreeSearch(BinTree tree, void* val){
+	BinTreeNode* node = tree.head;
 	
 	while(node != NULL){
-		if (val < node->value){
+		int compare = tree.fun(val, node->value);
+		if (compare < 0){
 			node = node->left;
 		}
-		else if (val == node->value){
+		else if (compare == 0){
 			return 1;
 		}
 		else{
@@ -78,26 +79,27 @@ int BinTreeSearch(BinTree tree, int val){
 }
 
 
-void BinTreeRemove(BinTree* tree, int val){
-	BinTreeNode* node = *tree;
+void BinTreeRemove(BinTree* tree, void* val){
+	BinTreeNode* node = tree->head;
 	BinTreeNode* parent = node;
 	int leaf_left_flag = 1;
 	
 	while(node != NULL){
-		if (val < node->value){
+		int compare = tree->fun(val, node->value);
+		if (compare < 0){
 			parent = node;
 			leaf_left_flag = 1;
 			node = node->left;
 		}
-		else if (val == node->value){
-			if (node == *tree){
-				if ((*tree)->right != NULL){
-					node = (*tree)->left;
-					(*tree) = (*tree)->right;
+		else if (compare == 0){
+			if (node == tree->head){
+				if (tree->head->right != NULL){
+					node = tree->head->left;
+					tree->head = tree->head->right;
 					BinTreeInsertNode(tree, node);
 				}
 				else{
-					(*tree) = (*tree)->left;
+					tree->head = tree->head->left;
 				}
 				return;
 			}
@@ -109,6 +111,7 @@ void BinTreeRemove(BinTree* tree, int val){
 			
 			BinTreeInsertNode(tree, node->left);
 			BinTreeInsertNode(tree, node->right);
+			free(node->value);
 			free(node);
 			return;
 		}
@@ -131,7 +134,7 @@ static int max(int val1, int val2){
 	return val2;
 }
 
-static RecursionReturn _BinTreePrint(BinTreeNode* node, int is_left, int offset, int depth, int max_len_for_subtree_width, char buf[BUF_SIZE][BUF_AREA_WIDTH]) {
+static RecursionReturn _BinTreePrint(BinTreeNode* node, int is_left, int offset, int depth, int max_len_for_subtree_width, char buf[BUF_AREA_HEIGH][BUF_AREA_WIDTH]) {
 	RecursionReturn ret;
 	ret.subtree_width = 0;
 	
@@ -141,7 +144,7 @@ static RecursionReturn _BinTreePrint(BinTreeNode* node, int is_left, int offset,
 	}
 	
 	char str_val[50] = {0};
-	sprintf(str_val, "%d", node->value);
+	sprintf(str_val, "%d", *((int*)node->value));
 	int str_len = strlen(str_val);
 	int max_width = max(str_len, max_len_for_subtree_width);
 
@@ -193,7 +196,7 @@ static int MaxSubtreeWidth(BinTreeNode* node){
 		return 0;
 	
 	char subtree_string[50] = {0};
-	sprintf(subtree_string, "%i",node->value);
+	sprintf(subtree_string, "%i", *((int*)node->value));
 	int subtree_width = strlen(subtree_string);
 	if (node->left == NULL && node->right == NULL){
 		return subtree_width;
@@ -208,8 +211,8 @@ void BinTreePrint(BinTree tree){
 	}
 	
 	char int_str[50];
-	sprintf(int_str, "(%d)", MaxSubtreeWidth(tree));
-	_BinTreePrint(tree,
+	sprintf(int_str, "(%d)", MaxSubtreeWidth(tree.head));
+	_BinTreePrint(tree.head,
 										0, 0, 0,
 										strlen(int_str),
 										s);
